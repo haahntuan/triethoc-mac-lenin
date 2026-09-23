@@ -195,6 +195,24 @@ document.getElementById('start-btn').addEventListener('click', () => {
     loadQuestion();
 });
 
+// XỬ LÝ NÚT BACK (</) QUAY VỀ TRANG CHỦ CÓ ANIMATION MƯỢT
+const backBtn = document.getElementById('back-btn');
+if (backBtn) {
+    backBtn.addEventListener('click', () => {
+        playSound('click');
+        
+        // Thêm animation mờ dần khi thoát khỏi quiz
+        quizScreen.classList.add('fade-out');
+        
+        setTimeout(() => {
+            quizScreen.classList.remove('active', 'fade-out');
+            feedbackBar.classList.add('hidden');
+            feedbackBar.classList.remove('correct-theme', 'wrong-theme');
+            homeScreen.classList.add('active');
+        }, 200);
+    });
+}
+
 function loadQuestion() {
     feedbackBar.classList.add('hidden');
     quizContent.classList.remove('flip-out');

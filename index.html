@@ -5,31 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trắc Nghiệm Triết Học</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS tạo hình nền Galaxy cố định phía sau */
+        #galaxy-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2; /* Nằm dưới cùng làm background */
+            background-color: #05070a;
+        }
+    </style>
 </head>
 <body>
+    <!-- Canvas cho hiệu ứng thiên hà xoắn ốc làm nền -->
+    <canvas id="galaxy-canvas"></canvas>
+
     <!-- Canvas cho hiệu ứng pháo hoa -->
     <canvas id="fireworks"></canvas>
 
     <div class="app-container">
         <!-- Trang chủ -->
-        <!-- ... code cũ của bạn ... -->
-<div id="home-screen" class="screen active">
-    <h2>Triết Học Mác - Lênin</h2>
-  
-    <!-- THÊM ĐOẠN STREAK NÀY VÀO ĐÂY -->
-    <div id="streak-container">
-        <div id="fire-icon" class="fire-off">🔥</div>
-        <div id="streak-count">0</div>
-        <div id="streak-text">streak</div>
-    </div>
-    <!-- KẾT THÚC ĐOẠN STREAK -->
+        <div id="home-screen" class="screen active">
+            <h2>Triết Học Mác - Lênin</h2>
+          
+            <!-- THÊM ĐOẠN STREAK NÀY VÀO ĐÂY -->
+            <div id="streak-container">
+                <div id="fire-icon" class="fire-off">🔥</div>
+                <div id="streak-count">0</div>
+                <div id="streak-text">streak</div>
+            </div>
+            <!-- KẾT THÚC ĐOẠN STREAK -->
 
-    <div class="select-container">
-        <select id="chapter-select">
-<!-- ... code cũ của bạn ... -->
-                    <option value="5">Làm 5 câu</option>
-          <option value="10">Làm 10 Câu</option>
-          <option value="20">Làm 20 Câu</option>
+            <div class="select-container">
+                <select id="chapter-select">
+                 <option value="5">Làm 5 Câu</option> 
+                  <option value="10">Làm 10 Câu</option>
+                    <option value="20">Làm 20 Câu</option>
                 </select>
             </div>
             <button id="start-btn" class="btn primary-btn">Bắt Đầu Làm Bài</button>
@@ -37,6 +50,9 @@
 
         <!-- Trang thi -->
         <div id="quiz-screen" class="screen">
+            <!-- Nút Back quay về Trang Chủ -->
+            <div id="back-btn" class="back-btn">&lt;/</div>
+
             <div class="header">
                 <div class="progress-container">
                     <div id="progress-bar"></div>
@@ -52,7 +68,7 @@
             </div>
         </div>
 
-        <!-- Thanh trạng thái dưới cùng (Giống ảnh 3) -->
+        <!-- Thanh trạng thái dưới cùng -->
         <div id="bottom-feedback" class="feedback-bar hidden">
             <div class="feedback-content">
                 <div id="feedback-icon" class="icon-box">🎉</div>
@@ -72,5 +88,6 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
+
 </body>
 </html>
