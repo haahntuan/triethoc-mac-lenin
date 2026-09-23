@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Triết Học</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Canvas cho hiệu ứng pháo hoa -->
+    <canvas id="fireworks"></canvas>
+
+    <div class="app-container">
+        <!-- Trang chủ -->
+        <!-- ... code cũ của bạn ... -->
+<div id="home-screen" class="screen active">
+    <h2>Triết Học Mác - Lênin</h2>
+  
+    <!-- THÊM ĐOẠN STREAK NÀY VÀO ĐÂY -->
+    <div id="streak-container">
+        <div id="fire-icon" class="fire-off">🔥</div>
+        <div id="streak-count">0</div>
+        <div id="streak-text">streak</div>
+    </div>
+    <!-- KẾT THÚC ĐOẠN STREAK -->
+
+    <div class="select-container">
+        <select id="chapter-select">
+<!-- ... code cũ của bạn ... -->
+                    <option value="10">Làm 1 Câu</option>
+          <option value="20">Làm 20 Câu</option>
+                </select>
+            </div>
+            <button id="start-btn" class="btn primary-btn">Bắt Đầu Làm Bài</button>
+        </div>
+
+        <!-- Trang thi -->
+        <div id="quiz-screen" class="screen">
+            <div class="header">
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+            </div>
+            
+            <!-- Vùng chứa câu hỏi để làm hiệu ứng lật trang -->
+            <div class="flip-wrapper">
+                <div id="quiz-content" class="flip-container">
+                    <h2 id="question-text">Nội dung câu hỏi?</h2>
+                    <div id="options-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh trạng thái dưới cùng (Giống ảnh 3) -->
+        <div id="bottom-feedback" class="feedback-bar hidden">
+            <div class="feedback-content">
+                <div id="feedback-icon" class="icon-box">🎉</div>
+                <div id="feedback-text">Đúng</div>
+            </div>
+            <button id="next-btn" class="btn next-btn">Tiếp tục</button>
+        </div>
+
+        <!-- Trang kết quả -->
+        <div id="result-screen" class="screen">
+            <h2>Hoàn Thành!</h2>
+            <div class="score-circle"><span id="score-text">0</span></div>
+            <p id="feedback-result">Bạn làm đúng 0/10 câu.</p>
+            <button id="restart-btn" class="btn primary-btn">Làm Lại</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
