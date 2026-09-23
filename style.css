@@ -11,24 +11,56 @@
     --wrong-bg: rgba(231, 76, 60, 0.1);
     --wrong-border: #e74c3c;
     
-    --btn-blue: #4b4bb4; /* Màu nút tiếp tục */
+    --btn-blue: #4b4bb4;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+/* CHỐNG COPY TEXT & CHỐNG ZOOM TRÊN THIẾT BỊ DI ĐỘNG */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+}
 
-body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; overflow: hidden; }
+/* SỬA LỖI KHÔNG LƯỚT/CUỘN ĐƯỢC */
+body { 
+    background-color: var(--bg-main); 
+    color: var(--text-main); 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; 
+    min-height: 100vh; 
+    min-height: 100dvh;
+    overflow-x: hidden; 
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
 
 /* Canvas Pháo hoa */
 #fireworks { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
 
-.app-container { width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; position: relative; padding-bottom: 100px; }
+.app-container { 
+    width: 100%; 
+    max-width: 500px; 
+    min-height: 100vh; 
+    min-height: 100dvh;
+    display: flex; 
+    flex-direction: column; 
+    position: relative; 
+    padding-bottom: 120px; /* Dành khoảng trống cho thanh Feedback bên dưới */
+}
 
 /* HIỆU ỨNG CHUYỂN MÀN HÌNH MƯỢT MÀ */
 .screen { 
     display: none; 
     padding: 20px; 
+    width: 100%;
     flex: 1; 
-    overflow-y: auto; 
 }
 
 .screen.active { 
@@ -70,7 +102,6 @@ body { background-color: var(--bg-main); color: var(--text-main); display: flex;
     color: var(--text-main);
     cursor: pointer;
     margin-bottom: 14px;
-    user-select: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
     width: fit-content;
 }
@@ -98,7 +129,7 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
 .progress-container { width: 100%; height: 6px; background: #333; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
 #progress-bar { height: 100%; background: var(--correct-border); width: 0%; transition: width 0.3s ease; border-radius: 10px; }
 
-/* Các đáp án (Style hình 3) */
+/* Các đáp án */
 .option { display: flex; align-items: center; background: transparent; border: 2px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; }
 .option:active { transform: scale(0.98); background: #2a2a2a; }
 
@@ -120,8 +151,8 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
 /* Thanh Feedback dưới cùng */
 .feedback-bar { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center; animation: slideUp 0.3s forwards; z-index: 100; border-top-left-radius: 20px; border-top-right-radius: 20px; }
 .feedback-bar.hidden { display: none; }
-.feedback-bar.correct-theme { background: #1a2a1a; } /* Xanh lá đậm */
-.feedback-bar.wrong-theme { background: #2a1a1a; } /* Đỏ đậm */
+.feedback-bar.correct-theme { background: #1a2a1a; }
+.feedback-bar.wrong-theme { background: #2a1a1a; }
 
 .feedback-content { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: bold; }
 .feedback-bar.correct-theme .feedback-content { color: var(--correct-border); }
@@ -177,13 +208,12 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
     animation: fire-pulse-purple 1.5s infinite alternate ease-in-out;
 }
 
-/* Streak>= 20: Lửa Xanh Dương */
+/* Streak >= 20: Lửa Xanh Dương */
 #fire-icon.fire-blue {
     filter: grayscale(0%) hue-rotate(150deg) drop-shadow(0 0 25px rgba(59, 130, 246, 0.9));
     animation: fire-pulse-blue 1.5s infinite alternate ease-in-out;
 }
 
-/* KEYFRAMES NHỊP ĐẬP CHO TỪNG MÀU LỬA */
 @keyframes fire-pulse-orange {
     0% { transform: scale(1); filter: grayscale(0%) drop-shadow(0 0 15px rgba(255, 102, 0, 0.6)); }
     100% { transform: scale(1.15); filter: grayscale(0%) drop-shadow(0 0 35px rgba(255, 60, 0, 1)); }
@@ -199,7 +229,6 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
     100% { transform: scale(1.15); filter: grayscale(0%) hue-rotate(150deg) drop-shadow(0 0 40px rgba(96, 165, 250, 1)); }
 }
 
-/* ANIMATION NÂNG CẤP LỬA KHI ĐẠT 10 VÀ 20 STREAK */
 .level-up-anim {
     animation: level-up-bounce 1.4s ease-in-out !important;
 }
@@ -225,16 +254,4 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
     color: #888888;
     font-weight: 600;
     margin-top: 4px;
-}
-
-/* Hiệu ứng nhịp đập của lửa */
-@keyframes fire-pulse {
-    0% {
-        transform: scale(1);
-        filter: grayscale(0%) drop-shadow(0 0 15px rgba(255, 102, 0, 0.6));
-    }
-    100% {
-        transform: scale(1.15);
-        filter: grayscale(0%) drop-shadow(0 0 40px rgba(255, 60, 0, 1));
-    }
 }

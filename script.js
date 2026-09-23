@@ -320,3 +320,9 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 });
 
 init();
+// Thêm đoạn mã này vào cuối file script.js để chống phím tắt copy/chụp nguồn
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+    }
+});

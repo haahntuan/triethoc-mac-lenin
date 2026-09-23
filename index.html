@@ -2,7 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cập nhật Viewport chống Zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trắc Nghiệm Triết Học</title>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -13,12 +14,13 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -2; /* Nằm dưới cùng làm background */
+            z-index: -2;
             background-color: #05070a;
         }
     </style>
 </head>
-<body>
+<!-- Khóa menu chuột phải -->
+<body oncontextmenu="return false;">
     <!-- Canvas cho hiệu ứng thiên hà xoắn ốc làm nền -->
     <canvas id="galaxy-canvas"></canvas>
 
@@ -30,18 +32,16 @@
         <div id="home-screen" class="screen active">
             <h2>Triết Học Mác - Lênin</h2>
           
-            <!-- THÊM ĐOẠN STREAK NÀY VÀO ĐÂY -->
             <div id="streak-container">
                 <div id="fire-icon" class="fire-off">🔥</div>
                 <div id="streak-count">0</div>
                 <div id="streak-text">streak</div>
             </div>
-            <!-- KẾT THÚC ĐOẠN STREAK -->
 
             <div class="select-container">
                 <select id="chapter-select">
-                 <option value="5">Làm 5 Câu</option> 
-                  <option value="10">Làm 10 Câu</option>
+                    <option value="5">Làm 5 Câu</option> 
+                    <option value="10">Làm 10 Câu</option>
                     <option value="20">Làm 20 Câu</option>
                 </select>
             </div>
@@ -50,7 +50,6 @@
 
         <!-- Trang thi -->
         <div id="quiz-screen" class="screen">
-            <!-- Nút Back quay về Trang Chủ -->
             <div id="back-btn" class="back-btn">&lt;/</div>
 
             <div class="header">
@@ -59,7 +58,6 @@
                 </div>
             </div>
             
-            <!-- Vùng chứa câu hỏi để làm hiệu ứng lật trang -->
             <div class="flip-wrapper">
                 <div id="quiz-content" class="flip-container">
                     <h2 id="question-text">Nội dung câu hỏi?</h2>
