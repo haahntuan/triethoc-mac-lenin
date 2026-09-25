@@ -136,7 +136,7 @@ function animateFireworks() {
 
 // Khởi tạo ứng dụng
 function init() {
-    updateStreakUI(); // Load Streak ngay khi mở app hoặc F5
+    updateStreakUI();
 
     if (typeof bankData !== 'undefined' && bankData.length > 0) {
         chapterSelect.innerHTML = '';
@@ -195,13 +195,11 @@ document.getElementById('start-btn').addEventListener('click', () => {
     loadQuestion();
 });
 
-// XỬ LÝ NÚT BACK (</) QUAY VỀ TRANG CHỦ CÓ ANIMATION MƯỢT
+// Nút Quay về trang chủ
 const backBtn = document.getElementById('back-btn');
 if (backBtn) {
     backBtn.addEventListener('click', () => {
         playSound('click');
-        
-        // Thêm animation mờ dần khi thoát khỏi quiz
         quizScreen.classList.add('fade-out');
         
         setTimeout(() => {
@@ -288,22 +286,23 @@ function showResult() {
     
     let isLevelUp = false;
 
-    // TÍNH TOÁN STREAK VÀ NÂNG CẤP LỬA
     if (score === currentQuestions.length && currentQuestions.length > 0) {
         streak++;
-        // Kiểm tra xem có vừa chạm mốc 10 hoặc 20 Streak không
         if (streak === 10 || streak === 20) {
             isLevelUp = true;
         }
     } else {
-        streak = 0; // Sai dù 1 câu -> Mất Streak
+        streak = 0;
     }
     
-    // Lưu vĩnh viễn vào bộ nhớ trình duyệt
     localStorage.setItem('quiz_streak', streak);
-    
-    // Cập nhật lại UI Lửa (kèm hiệu ứng level up nếu chạm 10 hoặc 20)
     updateStreakUI(isLevelUp);
+
+    // Cập nhật kỷ lục Streak cao nhất
+    if (streak > bestStreak) {
+        bestStreak = streak;
+        syncScoreToCloud(bestStreak);
+    }
 
     let feedbackMsg = `Bạn làm đúng ${score}/${currentQuestions.length} câu.`;
     if (isLevelUp) {
@@ -320,13 +319,14 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 });
 
 init();
-// Thêm đoạn mã này vào cuối file script.js để chống phím tắt copy/chụp nguồn
+
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
         e.preventDefault();
     }
 });
-// === HIỆU ỨNG SIGNAL PARTICLES (THREEUI VARIANT) ===
+
+// === HIỆU ỨNG SIGNAL PARTICLES ===
 (function initSignalParticles() {
     const canvas = document.getElementById('galaxy-canvas');
     if (!canvas) return;
@@ -335,14 +335,13 @@ document.addEventListener('keydown', function(e) {
     let width, height, dpr;
     let cols, rows;
     
-    // Cấu hình thông số theo chuẩn ThreeUI Signal Particles
     const config = {
-        gridSpacing: 16,     // Khoảng cách giữa các hạt pixel (px)
-        dotSize: 2.2,        // Kích thước hạt mặc định
-        speed: 0.3,          // Tốc độ sóng tín hiệu
-        baseHue: 200,        // Tông màu chủ đạo (Cyan / Violet)
-        saturation: 84,      // Độ bão hòa màu (%)
-        brightness: 1.19     // Độ sáng
+        gridSpacing: 16,
+        dotSize: 2.2,
+        speed: 0.3,
+        baseHue: 200,
+        saturation: 84,
+        brightness: 1.19
     };
 
     function resize() {
@@ -367,33 +366,26 @@ document.addEventListener('keydown', function(e) {
     let time = 0;
 
     function drawSignalField() {
-        // Xóa nền đen sâu (#05070a)
         ctx.fillStyle = '#05070a';
         ctx.fillRect(0, 0, width, height);
 
         time += 0.018 * config.speed;
 
-        // Vòng lặp vẽ lưới hạt tín hiệu
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
                 const x = i * config.gridSpacing;
                 const y = j * config.gridSpacing;
 
-                // Tọa độ chuẩn hóa [0, 1]
                 const u = x / width;
                 const v = y / height;
 
-                // Trục chéo đi từ TRÊN-PHẢI (u=1, v=0) xuống DƯỚI-TRÁI (u=0, v=1)
                 const diag = u - v;
 
-                // Sóng tín hiệu di chuyển liên tục theo đường chéo
                 const wave1 = Math.sin((diag * 4.5) + time * 2.2);
                 const wave2 = Math.cos((u * 3 + v * 3) - time * 1.5);
                 
-                // Kết hợp các dải sóng để tạo nhịp xung hạt (pulse)
                 let signal = Math.pow(Math.max(0, (wave1 + wave2 * 0.5) / 1.5), 3);
 
-                // Thêm nhiễu ngẫu nhiên nhẹ cho từng hạt (Glow flicker)
                 const pseudoNoise = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453;
                 const randomOffset = (pseudoNoise - Math.floor(pseudoNoise));
                 
@@ -401,12 +393,10 @@ document.addEventListener('keydown', function(e) {
                     signal += 0.3;
                 }
 
-                // Tính toán màu sắc & độ sáng của từng hạt
                 const activeFactor = Math.min(1, signal);
                 const currentHue = (config.baseHue + diag * 60 + activeFactor * 40) % 360;
                 
                 if (activeFactor > 0.15) {
-                    // Hạt sáng rực khi sóng tín hiệu quét qua
                     const alpha = Math.min(1, activeFactor * 0.95 * config.brightness);
                     const lightness = 45 + activeFactor * 45;
                     
@@ -415,13 +405,11 @@ document.addEventListener('keydown', function(e) {
                     const size = config.dotSize + activeFactor * 1.5;
                     ctx.fillRect(x - size / 2, y - size / 2, size, size);
 
-                    // Hiệu ứng quầng sáng xung quanh hạt nổi bật
                     if (activeFactor > 0.7) {
                         ctx.fillStyle = `hsla(${currentHue}, ${config.saturation}%, 70%, ${alpha * 0.25})`;
                         ctx.fillRect(x - size, y - size, size * 2, size * 2);
                     }
                 } else {
-                    // Hạt nền ẩn mờ khi không có sóng quét
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
                     ctx.fillRect(x - config.dotSize / 2, y - config.dotSize / 2, config.dotSize, config.dotSize);
                 }
@@ -433,3 +421,293 @@ document.addEventListener('keydown', function(e) {
 
     drawSignalField();
 })();
+
+// ==========================================================================
+// KẾT NỐI FIREBASE & XỬ LÝ USER / BẢNG XẾP HẠNG REALTIME
+// ==========================================================================
+
+let currentUser = JSON.parse(localStorage.getItem('quiz_user')) || null;
+let bestStreak = parseInt(localStorage.getItem('quiz_best_streak')) || 0;
+
+// 1. Khởi tạo Firebase
+(function initFirebaseApp() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyAUfblLs1VxJdDRBEdG61vLyNQuyc4rT3I",
+      authDomain: "quiz-triet-hoc.firebaseapp.com",
+      projectId: "quiz-triet-hoc",
+      storageBucket: "quiz-triet-hoc.firebasestorage.app",
+      messagingSenderId: "908580179253",
+      appId: "1:908580179253:web:3c3f8f7774e00c43b8107c",
+      measurementId: "G-MPEQNB0SVX"
+    };
+
+    if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        window.db = firebase.firestore();
+    } else {
+        console.warn("Chưa tải được thư viện Firebase SDK!");
+    }
+})();
+
+// 2. Cập nhật UI Profile
+function updateProfileUI() {
+    const headerAvatar = document.getElementById('header-avatar');
+    const sheetAvatar = document.getElementById('sheet-avatar');
+    const sheetUsername = document.getElementById('sheet-username');
+    const statStreak = document.getElementById('stat-streak');
+    const statBest = document.getElementById('stat-best');
+
+    if (currentUser) {
+        if (headerAvatar) headerAvatar.src = currentUser.avatar;
+        if (sheetAvatar) sheetAvatar.src = currentUser.avatar;
+        if (sheetUsername) sheetUsername.textContent = currentUser.displayName || currentUser.username;
+    } else {
+        const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
+        if (headerAvatar) headerAvatar.src = defaultAvatar;
+        if (sheetAvatar) sheetAvatar.src = defaultAvatar;
+        if (sheetUsername) sheetUsername.textContent = 'Khách (Chưa đăng nhập)';
+    }
+
+    if (statStreak) statStreak.textContent = `${streak} 🔥`;
+    if (statBest) statBest.textContent = `${bestStreak} 🏆`;
+}
+
+// 3. Đóng tất cả Sheets/Modals
+function closeAllSheets() {
+    const overlay = document.getElementById('overlay');
+    const authSheet = document.getElementById('auth-sheet');
+    const profileSheet = document.getElementById('profile-sheet');
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+
+    if (overlay) overlay.classList.add('hidden');
+    if (authSheet) authSheet.classList.add('hidden');
+    if (profileSheet) profileSheet.classList.add('hidden');
+    if (leaderboardModal) leaderboardModal.classList.add('hidden');
+}
+
+const overlayElem = document.getElementById('overlay');
+if (overlayElem) {
+    overlayElem.addEventListener('click', closeAllSheets);
+}
+
+document.querySelectorAll('.close-sheet-btn').forEach(btn => {
+    btn.addEventListener('click', closeAllSheets);
+});
+
+// 4. Click nút Profile (Avatar góc trên)
+const btnProfileElem = document.getElementById('btn-profile');
+if (btnProfileElem) {
+    btnProfileElem.addEventListener('click', () => {
+        if (typeof playSound === 'function') playSound('click');
+        const overlay = document.getElementById('overlay');
+        const authSheet = document.getElementById('auth-sheet');
+        const profileSheet = document.getElementById('profile-sheet');
+
+        if (overlay) overlay.classList.remove('hidden');
+        if (currentUser) {
+            updateProfileUI();
+            if (profileSheet) profileSheet.classList.remove('hidden');
+        } else {
+            if (authSheet) authSheet.classList.remove('hidden');
+        }
+    });
+}
+
+// 5. Đăng nhập / Tạo tài khoản
+const loginBtnElem = document.getElementById('login-btn');
+if (loginBtnElem) {
+    loginBtnElem.addEventListener('click', async () => {
+        const usernameInput = document.getElementById('username-input');
+        if (!usernameInput) return;
+        const userVal = usernameInput.value.trim();
+        if (!userVal) {
+            alert("Vui lòng nhập tên tài khoản!");
+            return;
+        }
+
+        if (!window.db) {
+            alert("Chưa kết nối được Firebase. Vui lòng kiểm tra lại kết nối mạng!");
+            return;
+        }
+
+        const docId = userVal.toLowerCase();
+        const userDocRef = window.db.collection('users').doc(docId);
+
+        try {
+            const doc = await userDocRef.get();
+
+            if (doc.exists) {
+                currentUser = doc.data();
+                bestStreak = currentUser.bestStreak || 0;
+            } else {
+                currentUser = {
+                    username: docId,
+                    displayName: userVal,
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userVal)}`,
+                    bestStreak: bestStreak || 0
+                };
+                await userDocRef.set(currentUser);
+            }
+
+            localStorage.setItem('quiz_user', JSON.stringify(currentUser));
+            localStorage.setItem('quiz_best_streak', bestStreak);
+            updateProfileUI();
+            closeAllSheets();
+        } catch (err) {
+            console.error("Lỗi đăng nhập Firebase:", err);
+            alert("Không thể kết nối Server: " + err.message);
+        }
+    });
+}
+
+// 6. Đồng bộ kỷ lục lên Cloud
+async function syncScoreToCloud(newBestStreak) {
+    bestStreak = newBestStreak;
+    localStorage.setItem('quiz_best_streak', bestStreak);
+
+    if (!currentUser) return;
+    currentUser.bestStreak = bestStreak;
+    localStorage.setItem('quiz_user', JSON.stringify(currentUser));
+
+    if (window.db) {
+        try {
+            await window.db.collection('users').doc(currentUser.username).update({
+                bestStreak: bestStreak
+            });
+        } catch (err) {
+            console.error("Lỗi đồng bộ điểm:", err);
+        }
+    }
+}
+
+// 7. Đổi Avatar
+const avatarClickZoneElem = document.getElementById('avatar-click-zone');
+if (avatarClickZoneElem) {
+    avatarClickZoneElem.addEventListener('click', () => {
+        const fileInput = document.getElementById('avatar-upload');
+        if (fileInput) fileInput.click();
+    });
+}
+
+const avatarUploadElem = document.getElementById('avatar-upload');
+if (avatarUploadElem) {
+    avatarUploadElem.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && currentUser) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                currentUser.avatar = event.target.result;
+                localStorage.setItem('quiz_user', JSON.stringify(currentUser));
+                updateProfileUI();
+                if (window.db) {
+                    await window.db.collection('users').doc(currentUser.username).update({ avatar: currentUser.avatar });
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// 8. Đổi Tên Hiển Thị
+const saveNameBtnElem = document.getElementById('save-name-btn');
+if (saveNameBtnElem) {
+    saveNameBtnElem.addEventListener('click', async () => {
+        const nameInput = document.getElementById('change-name-input');
+        if (!nameInput) return;
+        const newName = nameInput.value.trim();
+        if (newName && currentUser) {
+            currentUser.displayName = newName;
+            localStorage.setItem('quiz_user', JSON.stringify(currentUser));
+            nameInput.value = '';
+            updateProfileUI();
+            if (window.db) {
+                await window.db.collection('users').doc(currentUser.username).update({ displayName: newName });
+            }
+            alert("Đã đổi tên thành công!");
+        }
+    });
+}
+
+// 9. Đăng xuất
+const logoutBtnElem = document.getElementById('logout-btn');
+if (logoutBtnElem) {
+    logoutBtnElem.addEventListener('click', () => {
+        currentUser = null;
+        localStorage.removeItem('quiz_user');
+        updateProfileUI();
+        closeAllSheets();
+    });
+}
+
+// 10. Click nút Cúp mở Bảng xếp hạng Realtime
+const btnLeaderboardElem = document.getElementById('btn-leaderboard');
+if (btnLeaderboardElem) {
+    btnLeaderboardElem.addEventListener('click', () => {
+        if (typeof playSound === 'function') playSound('click');
+        const overlay = document.getElementById('overlay');
+        const leaderboardModal = document.getElementById('leaderboard-modal');
+        if (overlay) overlay.classList.remove('hidden');
+        if (leaderboardModal) leaderboardModal.classList.remove('hidden');
+        fetchRealtimeLeaderboard();
+    });
+}
+
+document.querySelectorAll('.rank-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.rank-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.rank-tab-content').forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+        const targetTab = document.getElementById(e.target.dataset.tab);
+        if (targetTab) targetTab.classList.add('active');
+    });
+});
+
+function fetchRealtimeLeaderboard() {
+    const streakContainer = document.getElementById('streak-rank-list');
+    if (!streakContainer) return;
+
+    streakContainer.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Đang tải Bảng Xếp Hạng Online...</p>';
+
+    if (!window.db) {
+        streakContainer.innerHTML = '<p style="text-align:center; color:#ef4444; padding:15px;">Chưa kết nối được Firebase.</p>';
+        return;
+    }
+
+    window.db.collection('users')
+      .orderBy('bestStreak', 'desc')
+      .limit(10)
+      .onSnapshot((snapshot) => {
+          streakContainer.innerHTML = '';
+          if (snapshot.empty) {
+              streakContainer.innerHTML = '<p style="text-align:center; color:#888;">Chưa có dữ liệu xếp hạng.</p>';
+              return;
+          }
+
+          let rank = 1;
+          snapshot.forEach((doc) => {
+              const data = doc.data();
+              const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+              const itemHTML = `
+                  <div class="rank-item">
+                      <div class="rank-left">
+                          <span class="rank-badge">${medal}</span>
+                          <img src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest'}" class="rank-avatar-img" alt="Avatar">
+                          <span class="rank-user-name">${data.displayName || data.username}</span>
+                      </div>
+                      <span class="rank-val">${data.bestStreak || 0} 🔥</span>
+                  </div>
+              `;
+              streakContainer.innerHTML += itemHTML;
+              rank++;
+          });
+      }, (error) => {
+          console.error("Lỗi BXH:", error);
+          streakContainer.innerHTML = '<p style="text-align:center; color:#ef4444;">Không thể kết nối BXH.</p>';
+      });
+}
+
+// Khởi chạy UI ban đầu
+updateProfileUI();

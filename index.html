@@ -2,22 +2,11 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Cập nhật Viewport chống Zoom -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trắc Nghiệm Triết Học</title>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trắc Nghiệm Triết Học</title>
     
-    <!-- THÊM CÁC DÒNG NÀY VÀO ĐÂY -->
-    <!-- Favicon chuẩn cho các trình duyệt Web -->
     <link rel="icon" type="image/png" href="logo.png">
-    <!-- Icon cho Safari / iOS / Webview mobile -->
     <link rel="apple-touch-icon" href="logo.png">
-    
-    <link rel="stylesheet" href="style.css">
-</head>
     <link rel="stylesheet" href="style.css">
     <style>
         /* CSS tạo hình nền Galaxy cố định phía sau */
@@ -32,19 +21,24 @@
         }
     </style>
 </head>
-<!-- Khóa menu chuột phải -->
 <body oncontextmenu="return false;">
-    <!-- Canvas cho hiệu ứng thiên hà xoắn ốc làm nền -->
     <canvas id="galaxy-canvas"></canvas>
-
-    <!-- Canvas cho hiệu ứng pháo hoa -->
     <canvas id="fireworks"></canvas>
 
     <div class="app-container">
+        <!-- THÊM MỚI: TOP BAR NÚT AVATAR GÓC TRÊN PHẢI -->
+        <div class="top-bar">
+            <h2 class="app-title">Triết Học Mác - Lênin</h2>
+            <div class="top-actions">
+                <button id="btn-leaderboard" class="icon-btn-top" title="Bảng xếp hạng">🏆</button>
+                <div id="btn-profile" class="profile-circle-btn">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="header-avatar" alt="Avatar">
+                </div>
+            </div>
+        </div>
+
         <!-- Trang chủ -->
         <div id="home-screen" class="screen active">
-            <h2>Triết Học Mác - Lênin</h2>
-          
             <div id="streak-container">
                 <div id="fire-icon" class="fire-off">🔥</div>
                 <div id="streak-count">0</div>
@@ -53,7 +47,7 @@
 
             <div class="select-container">
                 <select id="chapter-select">
-                    <option value="1">Làm 5 Câu</option> 
+                    <option value="5">Làm 5 Câu</option> 
                     <option value="10">Làm 10 Câu</option>
                     <option value="20">Làm 20 Câu</option>
                 </select>
@@ -97,8 +91,88 @@
         </div>
     </div>
 
+    <!-- OVERLAY & MODAL PROFILE -->
+    <div id="overlay" class="overlay hidden"></div>
+
+    <!-- Panel Chưa Đăng Nhập -->
+    <div id="auth-sheet" class="bottom-sheet hidden">
+        <button class="close-btn close-sheet-btn">✕</button>
+        <div class="sheet-header-title">Đăng Nhập / Đăng Ký</div>
+        <p class="sheet-sub">Tạo tài khoản để lưu điểm trên Bảng Xếp Hạng</p>
+        
+        <div class="form-group" style="margin-top:15px;">
+            <input type="text" id="username-input" class="input-field" placeholder="Tên tài khoản">
+            <input type="password" id="password-input" class="input-field" placeholder="Mật khẩu">
+            <button id="login-btn" class="btn primary-btn">Xác Nhận / Tạo Mới</button>
+        </div>
+    </div>
+
+    <!-- Panel Profile -->
+    <div id="profile-sheet" class="bottom-sheet hidden">
+        <button class="close-btn close-sheet-btn">✕</button>
+        
+        <div class="profile-hero">
+            <div class="large-avatar-wrapper" id="avatar-click-zone" title="Bấm để đổi ảnh đại diện">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" id="sheet-avatar" alt="Avatar">
+                <div class="avatar-edit-overlay">📷</div>
+            </div>
+            <h3 id="sheet-username">Tuan Tuan Tuan</h3>
+            <span class="user-badge-tag">Học viên Triết Học</span>
+        </div>
+
+        <div class="profile-actions-list">
+            <div class="edit-name-box">
+                <input type="text" id="change-name-input" class="input-field" placeholder="Đổi tên hiển thị...">
+                <button id="save-name-btn" class="btn primary-btn btn-sm">Đổi Tên</button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-val" id="stat-streak">0 🔥</span>
+                    <span class="stat-lbl">Streak hiện tại</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="stat-best">0 🏆</span>
+                    <span class="stat-lbl">Streak kỷ lục</span>
+                </div>
+            </div>
+
+            <button id="logout-btn" class="btn danger-btn">Đăng Xuất</button>
+        </div>
+        <input type="file" id="avatar-upload" accept="image/*" style="display:none;">
+    </div>
+
+    <!-- Bảng Xếp Hạng -->
+    <div id="leaderboard-modal" class="modal-card hidden">
+        <div class="modal-header">
+            <h3>🏆 Bảng Xếp Hạng</h3>
+            <button class="close-btn close-sheet-btn">✕</button>
+        </div>
+
+        <div class="rank-tabs">
+            <button class="rank-tab active" data-tab="rank-streak">🔥 Theo Streak</button>
+            <button class="rank-tab" data-tab="rank-time">⏱️ Theo Thời Gian</button>
+        </div>
+
+        <div id="rank-streak" class="rank-tab-content active">
+            <div id="streak-rank-list" class="rank-scroll-list"></div>
+        </div>
+
+        <div id="rank-time" class="rank-tab-content hidden">
+            <div class="time-subtabs">
+                <button class="subtab active" data-time="5">5 Câu</button>
+                <button class="subtab" data-time="10">10 Câu</button>
+                <button class="subtab" data-time="15">15 Câu</button>
+            </div>
+            <div id="time-rank-list" class="rank-scroll-list"></div>
+        </div>
+    </div>
+
+    <!-- Thư viện Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script src="data.js"></script>
     <script src="script.js"></script>
-
 </body>
 </html>
