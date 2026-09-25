@@ -675,13 +675,15 @@ function fetchRealtimeLeaderboard() {
         return;
     }
 
+    // Lọc chỉ những tài khoản có bestStreak từ 1 trở lên
     window.db.collection('users')
+      .where('bestStreak', '>=', 1)
       .orderBy('bestStreak', 'desc')
       .limit(10)
       .onSnapshot((snapshot) => {
           streakContainer.innerHTML = '';
           if (snapshot.empty) {
-              streakContainer.innerHTML = '<p style="text-align:center; color:#888;">Chưa có dữ liệu xếp hạng.</p>';
+              streakContainer.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Chưa có ai đạt từ 1 🔥 trở lên!</p>';
               return;
           }
 
