@@ -326,3 +326,110 @@ document.addEventListener('keydown', function(e) {
         e.preventDefault();
     }
 });
+// === HIỆU ỨNG SIGNAL PARTICLES (THREEUI VARIANT) ===
+(function initSignalParticles() {
+    const canvas = document.getElementById('galaxy-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width, height, dpr;
+    let cols, rows;
+    
+    // Cấu hình thông số theo chuẩn ThreeUI Signal Particles
+    const config = {
+        gridSpacing: 16,     // Khoảng cách giữa các hạt pixel (px)
+        dotSize: 2.2,        // Kích thước hạt mặc định
+        speed: 0.3,          // Tốc độ sóng tín hiệu
+        baseHue: 200,        // Tông màu chủ đạo (Cyan / Violet)
+        saturation: 84,      // Độ bão hòa màu (%)
+        brightness: 1.19     // Độ sáng
+    };
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        
+        ctx.scale(dpr, dpr);
+
+        cols = Math.ceil(width / config.gridSpacing) + 1;
+        rows = Math.ceil(height / config.gridSpacing) + 1;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    let time = 0;
+
+    function drawSignalField() {
+        // Xóa nền đen sâu (#05070a)
+        ctx.fillStyle = '#05070a';
+        ctx.fillRect(0, 0, width, height);
+
+        time += 0.018 * config.speed;
+
+        // Vòng lặp vẽ lưới hạt tín hiệu
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                const x = i * config.gridSpacing;
+                const y = j * config.gridSpacing;
+
+                // Tọa độ chuẩn hóa [0, 1]
+                const u = x / width;
+                const v = y / height;
+
+                // Trục chéo đi từ TRÊN-PHẢI (u=1, v=0) xuống DƯỚI-TRÁI (u=0, v=1)
+                const diag = u - v;
+
+                // Sóng tín hiệu di chuyển liên tục theo đường chéo
+                const wave1 = Math.sin((diag * 4.5) + time * 2.2);
+                const wave2 = Math.cos((u * 3 + v * 3) - time * 1.5);
+                
+                // Kết hợp các dải sóng để tạo nhịp xung hạt (pulse)
+                let signal = Math.pow(Math.max(0, (wave1 + wave2 * 0.5) / 1.5), 3);
+
+                // Thêm nhiễu ngẫu nhiên nhẹ cho từng hạt (Glow flicker)
+                const pseudoNoise = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453;
+                const randomOffset = (pseudoNoise - Math.floor(pseudoNoise));
+                
+                if (randomOffset > 0.88) {
+                    signal += 0.3;
+                }
+
+                // Tính toán màu sắc & độ sáng của từng hạt
+                const activeFactor = Math.min(1, signal);
+                const currentHue = (config.baseHue + diag * 60 + activeFactor * 40) % 360;
+                
+                if (activeFactor > 0.15) {
+                    // Hạt sáng rực khi sóng tín hiệu quét qua
+                    const alpha = Math.min(1, activeFactor * 0.95 * config.brightness);
+                    const lightness = 45 + activeFactor * 45;
+                    
+                    ctx.fillStyle = `hsla(${currentHue}, ${config.saturation}%, ${lightness}%, ${alpha})`;
+                    
+                    const size = config.dotSize + activeFactor * 1.5;
+                    ctx.fillRect(x - size / 2, y - size / 2, size, size);
+
+                    // Hiệu ứng quầng sáng xung quanh hạt nổi bật
+                    if (activeFactor > 0.7) {
+                        ctx.fillStyle = `hsla(${currentHue}, ${config.saturation}%, 70%, ${alpha * 0.25})`;
+                        ctx.fillRect(x - size, y - size, size * 2, size * 2);
+                    }
+                } else {
+                    // Hạt nền ẩn mờ khi không có sóng quét
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+                    ctx.fillRect(x - config.dotSize / 2, y - config.dotSize / 2, config.dotSize, config.dotSize);
+                }
+            }
+        }
+
+        requestAnimationFrame(drawSignalField);
+    }
+
+    drawSignalField();
+})();
