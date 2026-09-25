@@ -52,7 +52,7 @@ body {
     display: flex; 
     flex-direction: column; 
     position: relative; 
-    padding-bottom: 120px; /* Dành khoảng trống cho thanh Feedback bên dưới */
+    padding-bottom: 120px;
 }
 
 /* HIỆU ỨNG CHUYỂN MÀN HÌNH MƯỢT MÀ */
@@ -94,7 +94,6 @@ body {
     }
 }
 
-/* NÚT BACK (</) CHUẨN GIAO DIỆN HÌNH MẪU */
 .back-btn {
     display: inline-block;
     font-size: 1.3rem;
@@ -255,18 +254,19 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
     font-weight: 600;
     margin-top: 4px;
 }
+
 /* === TỐI ƯU GIAO DIỆN DÀNH CHO PC & MÀN HÌNH LỚN === */
 @media (min-width: 768px) {
     body {
-        align-items: center; /* Căn giữa khung câu hỏi theo chiều dọc màn hình PC */
+        align-items: center;
         padding: 40px 20px;
     }
 
     .app-container {
-        max-width: 680px; /* Mở rộng chiều rộng khung trắc nghiệm trên PC */
+        max-width: 680px;
         min-height: auto; 
-        background: rgba(25, 25, 25, 0.75); /* Đổi thành khối Card bán trong suốt */
-        backdrop-filter: blur(16px); /* Hiệu ứng làm mờ nền kính (Glassmorphism) */
+        background: rgba(25, 25, 25, 0.75);
+        backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 24px;
@@ -275,7 +275,6 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
         padding-bottom: 110px;
     }
 
-    /* Định vị thanh Feedback nổi bên trong khung Card trên PC */
     .feedback-bar {
         position: absolute;
         max-width: calc(100% - 40px);
@@ -284,7 +283,6 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
         border-radius: 16px;
     }
 
-    /* Hiệu ứng di chuột (Hover) chuyên nghiệp cho PC */
     .option {
         transition: all 0.25s ease;
     }
@@ -306,9 +304,6 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
         transform: scale(1.1);
     }
 }
-/* ==========================================================================
-   THÊM MỚI: CSS CHO TOP BAR & PROFILE PANEL ASTRA AI
-   ========================================================================== */
 
 /* TOP BAR HEADER */
 .top-bar {
@@ -340,26 +335,72 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
 }
 .overlay.hidden { display: none; opacity: 0; pointer-events: none; }
 
-/* PANEL ASTRA AI STYLE (BOTTOM SHEET) */
+/* PANEL BOTTOM SHEET (CÓ ĐẨY LÊN KHI MỞ BÀN PHÍM DI ĐỘNG) */
 .bottom-sheet { 
     position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; 
     background: #141519; border: 1px solid var(--border-color); border-radius: 24px 24px 0 0; 
     padding: 24px 20px; z-index: 1001; box-shadow: 0 -10px 40px rgba(0,0,0,0.9); 
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.25s ease, max-height 0.25s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 .bottom-sheet.hidden { transform: translate(-50%, 100%); }
 
+/* ĐẨY BOTTOM SHEET LÊN CAO KHI MỞ BÀN PHÍM ĐIỆN THOẠI ĐỂ KHÔNG BỊ CHE */
+.bottom-sheet.keyboard-active {
+    bottom: 40dvh !important;
+    bottom: 40vh !important;
+    max-height: 55vh !important;
+}
+
+/* CSS DÀNH CHO TAB ĐĂNG NHẬP / ĐĂNG KÝ */
+.auth-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.auth-tabs {
+    display: flex;
+    background: #20222a;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+    flex: 1;
+    margin-right: 12px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-tab.active {
+    background: #323644;
+    color: #ffffff;
+}
+
 .close-btn { 
-    position: absolute; top: 16px; right: 18px; background: rgba(255,255,255,0.08); 
-    border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; 
-    font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    position: relative; top: 0; right: 0; background: rgba(255,255,255,0.08); 
+    border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; 
+    font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .close-btn:active { background: rgba(255,255,255,0.2); }
 
 .sheet-header-title { font-size: 1.2rem; font-weight: 700; color: #fff; }
 .sheet-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
 
-/* DẠNG DỰA THEO ASTRA AI: AVATAR TRÒN TO CHÍNH GIỮA PHÍA TRÊN */
+/* PROFILE HERO */
 .profile-hero { text-align: center; margin-top: 5px; margin-bottom: 20px; }
 .large-avatar-wrapper { 
     width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 10px; position: relative; 

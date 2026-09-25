@@ -26,7 +26,7 @@
     <canvas id="fireworks"></canvas>
 
     <div class="app-container">
-        <!-- THÊM MỚI: TOP BAR NÚT AVATAR GÓC TRÊN PHẢI -->
+        <!-- TOP BAR NÚT AVATAR GÓC TRÊN PHẢI -->
         <div class="top-bar">
             <h2 class="app-title">Triết Học Mác - Lênin</h2>
             <div class="top-actions">
@@ -94,16 +94,21 @@
     <!-- OVERLAY & MODAL PROFILE -->
     <div id="overlay" class="overlay hidden"></div>
 
-    <!-- Panel Chưa Đăng Nhập -->
+    <!-- Panel Chưa Đăng Nhập / Đăng Ký riêng biệt -->
     <div id="auth-sheet" class="bottom-sheet hidden">
-        <button class="close-btn close-sheet-btn">✕</button>
-        <div class="sheet-header-title">Đăng Nhập / Đăng Ký</div>
-        <p class="sheet-sub">Tạo tài khoản để lưu điểm trên Bảng Xếp Hạng</p>
+        <div class="auth-header-row">
+            <div class="auth-tabs">
+                <button id="auth-tab-login" class="auth-tab active" type="button">Đăng Nhập</button>
+                <button id="auth-tab-register" class="auth-tab" type="button">Đăng Ký</button>
+            </div>
+            <button class="close-btn close-sheet-btn" type="button">✕</button>
+        </div>
+        <p id="auth-subtitle" class="sheet-sub">Đăng nhập tài khoản để lưu điểm lên BXH</p>
         
         <div class="form-group" style="margin-top:15px;">
-            <input type="text" id="username-input" class="input-field" placeholder="Tên tài khoản">
-            <input type="password" id="password-input" class="input-field" placeholder="Mật khẩu">
-            <button id="login-btn" class="btn primary-btn">Xác Nhận / Tạo Mới</button>
+            <input type="text" id="username-input" class="input-field" placeholder="Tên tài khoản (viết liền, không dấu)" autocomplete="off">
+            <input type="password" id="password-input" class="input-field" placeholder="Mật khẩu" autocomplete="off">
+            <button id="login-btn" class="btn primary-btn">Đăng Nhập</button>
         </div>
     </div>
 

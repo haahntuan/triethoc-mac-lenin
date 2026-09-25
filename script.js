@@ -17,7 +17,7 @@ let currentQuestions = [];
 let currentQuestionIndex = 0;
 let score = 0;
 
-// Nạp Streak từ localStorage (F5 không bao giờ mất)
+// Nạp Streak từ localStorage
 let streak = parseInt(localStorage.getItem('quiz_streak')) || 0;
 
 // Cập nhật trạng thái màu sắc và hiệu ứng lửa
@@ -428,6 +428,7 @@ document.addEventListener('keydown', function(e) {
 
 let currentUser = JSON.parse(localStorage.getItem('quiz_user')) || null;
 let bestStreak = parseInt(localStorage.getItem('quiz_best_streak')) || 0;
+let currentAuthMode = 'login'; // Mặc định là 'login'
 
 // 1. Khởi tạo Firebase
 (function initFirebaseApp() {
@@ -482,8 +483,16 @@ function closeAllSheets() {
     const leaderboardModal = document.getElementById('leaderboard-modal');
 
     if (overlay) overlay.classList.add('hidden');
-    if (authSheet) authSheet.classList.add('hidden');
-    if (profileSheet) profileSheet.classList.add('hidden');
+    if (authSheet) {
+        authSheet.classList.add('hidden');
+        authSheet.classList.remove('keyboard-active');
+        authSheet.style.bottom = '';
+    }
+    if (profileSheet) {
+        profileSheet.classList.add('hidden');
+        profileSheet.classList.remove('keyboard-active');
+        profileSheet.style.bottom = '';
+    }
     if (leaderboardModal) leaderboardModal.classList.add('hidden');
 }
 
@@ -515,15 +524,109 @@ if (btnProfileElem) {
     });
 }
 
-// 5. Đăng nhập / Tạo tài khoản
+// === XỬ LÝ TAB ĐĂNG NHẬP / ĐĂNG KÝ VÀ TỰ ĐỘNG ĐẨY SHEET KHI MỞ BÀN PHÍM ===
+const authTabLogin = document.getElementById('auth-tab-login');
+const authTabRegister = document.getElementById('auth-tab-register');
+const authSubtitle = document.getElementById('auth-subtitle');
 const loginBtnElem = document.getElementById('login-btn');
+const usernameInput = document.getElementById('username-input');
+const passwordInput = document.getElementById('password-input');
+
+if (authTabLogin && authTabRegister) {
+    authTabLogin.addEventListener('click', () => {
+        currentAuthMode = 'login';
+        authTabLogin.classList.add('active');
+        authTabRegister.classList.remove('active');
+        if (authSubtitle) authSubtitle.textContent = 'Đăng nhập tài khoản để lưu điểm lên BXH';
+        if (loginBtnElem) loginBtnElem.textContent = 'Đăng Nhập';
+    });
+
+    authTabRegister.addEventListener('click', () => {
+        currentAuthMode = 'register';
+        authTabRegister.classList.add('active');
+        authTabLogin.classList.remove('active');
+        if (authSubtitle) authSubtitle.textContent = 'Đăng ký tài khoản để lưu điểm lên BXH';
+        if (loginBtnElem) loginBtnElem.textContent = 'Đăng Ký';
+    });
+}
+
+// Hàm lọc bỏ ký tự có dấu và khoảng trắng
+function sanitizeAuthInput(str) {
+    return str.replace(/[^a-zA-Z0-9]/g, '');
+}
+
+// Gắn sự kiện cho tất cả các input field trong bottom sheet
+const allInputs = document.querySelectorAll('.bottom-sheet .input-field');
+allInputs.forEach(input => {
+    input.addEventListener('input', (e) => {
+        if (e.target.id === 'username-input' || e.target.id === 'password-input') {
+            e.target.value = sanitizeAuthInput(e.target.value);
+        }
+    });
+
+    // Khi người dùng chạm vào ô nhập trên điện thoại, đẩy khung lên trên bàn phím ngay lập tức
+    input.addEventListener('focus', () => {
+        const sheet = input.closest('.bottom-sheet');
+        if (sheet) {
+            sheet.classList.add('keyboard-active');
+            setTimeout(() => {
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    });
+
+    input.addEventListener('blur', () => {
+        const sheet = input.closest('.bottom-sheet');
+        if (sheet) {
+            sheet.classList.remove('keyboard-active');
+            sheet.style.bottom = '';
+        }
+    });
+});
+
+// Lắng nghe sự thay đổi kích thước Visual Viewport thực tế khi bàn phím ảo đẩy lên (Android / iOS)
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        const activeSheet = document.querySelector('.bottom-sheet:not(.hidden)');
+        if (!activeSheet) return;
+
+        const keyboardHeight = window.innerHeight - window.visualViewport.height;
+        if (keyboardHeight > 120) {
+            activeSheet.classList.add('keyboard-active');
+            if (keyboardHeight > 200) {
+                activeSheet.style.bottom = `${keyboardHeight - 20}px`;
+            }
+        } else {
+            activeSheet.classList.remove('keyboard-active');
+            activeSheet.style.bottom = '';
+        }
+    });
+}
+
+// 5. Xử lý Đăng Nhập / Đăng Ký riêng biệt
 if (loginBtnElem) {
     loginBtnElem.addEventListener('click', async () => {
-        const usernameInput = document.getElementById('username-input');
-        if (!usernameInput) return;
-        const userVal = usernameInput.value.trim();
+        const userVal = usernameInput ? usernameInput.value.trim() : '';
+        const passVal = passwordInput ? passwordInput.value.trim() : '';
+
         if (!userVal) {
             alert("Vui lòng nhập tên tài khoản!");
+            return;
+        }
+
+        if (!passVal) {
+            alert("Vui lòng nhập mật khẩu!");
+            return;
+        }
+
+        const validRegex = /^[a-zA-Z0-9]+$/;
+        if (!validRegex.test(userVal)) {
+            alert("Tài khoản không được chứa dấu cách, chữ có dấu hoặc ký tự đặc biệt!");
+            return;
+        }
+
+        if (!validRegex.test(passVal)) {
+            alert("Mật khẩu không được chứa dấu cách, chữ có dấu hoặc ký tự đặc biệt!");
             return;
         }
 
@@ -538,25 +641,56 @@ if (loginBtnElem) {
         try {
             const doc = await userDocRef.get();
 
-            if (doc.exists) {
-                currentUser = doc.data();
+            if (currentAuthMode === 'login') {
+                // --- XỬ LÝ ĐĂNG NHẬP ---
+                if (!doc.exists) {
+                    alert("Tài khoản không tồn tại! Vui lòng chuyển sang tab Đăng Ký.");
+                    return;
+                }
+
+                const userData = doc.data();
+                if (userData.password && userData.password !== passVal) {
+                    alert("Mật khẩu không chính xác!");
+                    return;
+                }
+
+                currentUser = userData;
+                if (!userData.password) {
+                    currentUser.password = passVal;
+                    await userDocRef.update({ password: passVal });
+                }
                 bestStreak = currentUser.bestStreak || 0;
+                alert("Đăng nhập thành công!");
+
             } else {
+                // --- XỬ LÝ ĐĂNG KÝ ---
+                if (doc.exists) {
+                    alert("Tên tài khoản đã tồn tại! Vui lòng chọn tên khác hoặc chuyển sang tab Đăng Nhập.");
+                    return;
+                }
+
                 currentUser = {
                     username: docId,
                     displayName: userVal,
+                    password: passVal,
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userVal)}`,
                     bestStreak: bestStreak || 0
                 };
+
                 await userDocRef.set(currentUser);
+                alert("Đăng ký tài khoản thành công!");
             }
 
             localStorage.setItem('quiz_user', JSON.stringify(currentUser));
             localStorage.setItem('quiz_best_streak', bestStreak);
             updateProfileUI();
             closeAllSheets();
+
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+
         } catch (err) {
-            console.error("Lỗi đăng nhập Firebase:", err);
+            console.error("Lỗi xác thực Firebase:", err);
             alert("Không thể kết nối Server: " + err.message);
         }
     });
