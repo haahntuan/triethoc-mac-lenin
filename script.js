@@ -456,6 +456,7 @@ let currentAuthMode = 'login'; // Mặc định là 'login'
 function updateProfileUI() {
     const headerAvatar = document.getElementById('header-avatar');
     const sheetAvatar = document.getElementById('sheet-avatar');
+    const sheetHandle = document.getElementById('sheet-handle'); // Thêm biến này
     const sheetUsername = document.getElementById('sheet-username');
     const statStreak = document.getElementById('stat-streak');
     const statBest = document.getElementById('stat-best');
@@ -463,17 +464,20 @@ function updateProfileUI() {
     if (currentUser) {
         if (headerAvatar) headerAvatar.src = currentUser.avatar;
         if (sheetAvatar) sheetAvatar.src = currentUser.avatar;
+        if (sheetHandle) sheetHandle.textContent = `@${currentUser.username}`; // Cập nhật @username
         if (sheetUsername) sheetUsername.textContent = currentUser.displayName || currentUser.username;
     } else {
         const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
         if (headerAvatar) headerAvatar.src = defaultAvatar;
         if (sheetAvatar) sheetAvatar.src = defaultAvatar;
+        if (sheetHandle) sheetHandle.textContent = '@guest'; // Mặc định khi chưa đăng nhập
         if (sheetUsername) sheetUsername.textContent = 'Khách (Chưa đăng nhập)';
     }
 
     if (statStreak) statStreak.textContent = `${streak} 🔥`;
     if (statBest) statBest.textContent = `${bestStreak} 🏆`;
 }
+
 
 // 3. Đóng tất cả Sheets/Modals
 function closeAllSheets() {
@@ -826,14 +830,30 @@ function fetchRealtimeLeaderboard() {
               const data = doc.data();
               const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
 
+              // 1. Kiểm tra xem dòng này có phải của bản thân hay không
+              const isMe = currentUser && (currentUser.username.toLowerCase() === doc.id.toLowerCase());
+              const isMeClass = isMe ? 'is-me' : '';
+
+              // 2. Kiểm tra nếu tài khoản đang đăng nhập có quyền admin
+              const isAdmin = currentUser && currentUser.role === 'admin';
+              const adminControls = isAdmin ? `
+                  <div class="admin-actions">
+                      <button onclick="editUserStreak('${doc.id}', ${data.bestStreak || 0})" class="admin-btn" title="Sửa điểm Top">✏️</button>
+                      <button onclick="deleteUserFromRank('${doc.id}')" class="admin-btn" title="Xóa khỏi BXH">🗑️</button>
+                  </div>
+              ` : '';
+
               const itemHTML = `
-                  <div class="rank-item">
+                  <div class="rank-item ${isMeClass}">
                       <div class="rank-left">
                           <span class="rank-badge">${medal}</span>
                           <img src="${data.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest'}" class="rank-avatar-img" alt="Avatar">
                           <span class="rank-user-name">${data.displayName || data.username}</span>
                       </div>
-                      <span class="rank-val">${data.bestStreak || 0} 🔥</span>
+                      <div class="rank-right">
+                          <span class="rank-val">${data.bestStreak || 0} 🔥</span>
+                          ${adminControls}
+                      </div>
                   </div>
               `;
               streakContainer.innerHTML += itemHTML;
@@ -844,6 +864,38 @@ function fetchRealtimeLeaderboard() {
           streakContainer.innerHTML = '<p style="text-align:center; color:#ef4444;">Không thể kết nối BXH.</p>';
       });
 }
+
+// === CÁC HÀM XỬ LÝ QUYỀN ADMIN (SỬA & XÓA TOP) ===
+window.editUserStreak = async function(docId, currentStreak) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    const newStreak = prompt(`Nhập số Streak mới cho ${docId}:`, currentStreak);
+    if (newStreak !== null && !isNaN(newStreak) && newStreak >= 0) {
+        try {
+            await window.db.collection('users').doc(docId).update({
+                bestStreak: parseInt(newStreak)
+            });
+            alert("Đã cập nhật điểm thành công!");
+        } catch (err) {
+            alert("Lỗi khi cập nhật: " + err.message);
+        }
+    }
+};
+
+window.deleteUserFromRank = async function(docId) {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    if (confirm(`Bạn có chắc chắn muốn xóa tài khoản "${docId}" khỏi Bảng Xếp Hạng?`)) {
+        try {
+            // Đặt bestStreak về 0 để xoá khỏi BXH
+            await window.db.collection('users').doc(docId).update({
+                bestStreak: 0
+            });
+            alert("Đã xóa khỏi Bảng Xếp Hạng!");
+        } catch (err) {
+            alert("Lỗi khi xóa: " + err.message);
+        }
+    }
+};
+
 
 // Khởi chạy UI ban đầu
 updateProfileUI();

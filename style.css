@@ -451,3 +451,46 @@ select { width: 100%; padding: 15px; border-radius: 12px; background: var(--card
 .rank-avatar-img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #fff; }
 .rank-user-name { font-weight: 600; font-size: 0.9rem; color: #eee; }
 .rank-val { font-weight: 800; font-size: 0.9rem; color: #2ecc71; }
+
+/* Viền xanh lá phát sáng cho rank của chính mình */
+.rank-item.is-me {
+    border: 2px solid #2ecc71 !important;
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.4);
+}
+
+/* Khung hiển thị nút bấm Admin trong Bảng xếp hạng */
+.rank-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding-left: 6px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.admin-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.profile-handle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 2px;
+}
