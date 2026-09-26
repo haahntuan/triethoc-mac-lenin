@@ -865,15 +865,26 @@ function fetchRealtimeLeaderboard() {
       });
 }
 
-// === CÁC HÀM XỬ LÝ QUYỀN ADMIN (SỬA & XÓA TOP) ===
+// === CÁC HÀM XỬ LÝ QUYỀN ADMIN (ĐÃ FIX LỖI ĐỒNG BỘ STREAK) ===
 window.editUserStreak = async function(docId, currentStreak) {
     if (!currentUser || currentUser.role !== 'admin') return;
     const newStreak = prompt(`Nhập số Streak mới cho ${docId}:`, currentStreak);
     if (newStreak !== null && !isNaN(newStreak) && newStreak >= 0) {
+        const parsedVal = parseInt(newStreak);
         try {
             await window.db.collection('users').doc(docId).update({
-                bestStreak: parseInt(newStreak)
+                bestStreak: parsedVal
             });
+            // Đồng bộ bộ nhớ máy nếu sửa chính mình
+            if (currentUser && currentUser.username.toLowerCase() === docId.toLowerCase()) {
+                currentUser.bestStreak = parsedVal;
+                const stored = localStorage.getItem('user');
+                if (stored) {
+                    let uData = JSON.parse(stored);
+                    uData.bestStreak = parsedVal;
+                    localStorage.setItem('user', JSON.stringify(uData));
+                }
+            }
             alert("Đã cập nhật điểm thành công!");
         } catch (err) {
             alert("Lỗi khi cập nhật: " + err.message);
@@ -885,16 +896,26 @@ window.deleteUserFromRank = async function(docId) {
     if (!currentUser || currentUser.role !== 'admin') return;
     if (confirm(`Bạn có chắc chắn muốn xóa tài khoản "${docId}" khỏi Bảng Xếp Hạng?`)) {
         try {
-            // Đặt bestStreak về 0 để xoá khỏi BXH
             await window.db.collection('users').doc(docId).update({
                 bestStreak: 0
             });
+            // Đồng bộ bộ nhớ máy về 0 nếu xóa chính mình
+            if (currentUser && currentUser.username.toLowerCase() === docId.toLowerCase()) {
+                currentUser.bestStreak = 0;
+                const stored = localStorage.getItem('user');
+                if (stored) {
+                    let uData = JSON.parse(stored);
+                    uData.bestStreak = 0;
+                    localStorage.setItem('user', JSON.stringify(uData));
+                }
+            }
             alert("Đã xóa khỏi Bảng Xếp Hạng!");
         } catch (err) {
             alert("Lỗi khi xóa: " + err.message);
         }
     }
 };
+
 
 
 // Khởi chạy UI ban đầu
